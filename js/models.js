@@ -25,7 +25,7 @@ class Story {
 
   getHostName() {
 
-    return this.url;
+    return new URL(this.url).host;
   }
 }
 
@@ -100,10 +100,18 @@ class StoryList {
 
     this.stories.unshift(story)
     user.ownStories.unshift(story)
-
-
   }
 
+  async removeStory(user, story) {
+    const token = user.loginToken
+    const response = await axios({
+      method: 'delete',
+      data: { token },
+      url: `${BASE_URL}/stories/${story.storyId}`
+    })
+
+    user.ownStories = user.ownStories.filter(s => s.storyId !== story.storyId)
+  }
 }
 
 /******************************************************************************
@@ -239,6 +247,10 @@ class User {
 
   isFavorite(story) {
     return this.favorites.some(s => (s.storyId === story.storyId))
+  }
+
+  isMyStory(story) {
+    return this.ownStories.some(s => s.storyId === story.storyId)
   }
 
 }

@@ -31,20 +31,48 @@ async function getAndShowStoriesOnStart() {
 function generateStoryMarkup(story) {
   // console.debug("generateStoryMarkup", story);
   const showStar = Boolean(currentUser)
+  const showTrash = Boolean(currentUser)
 
   const hostName = story.getHostName();
+
   return $(`
       <li id="${story.storyId}">
+      ${getDeleteButton(currentUser, story)}
         ${showStar ? getStarHTML(story, currentUser) : ""}
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
-        <small class="story-hostname">(${hostName})</small>
+        <small class="story-hostname">(${hostName})</small> 
         <small class="story-author">by ${story.author}</small>
         <small class="story-user">posted by ${story.username}</small>
       </li>
     `);
+
 }
+
+function getDeleteButton(user, story) {
+
+  if (user.isMyStory(story)) { return `<span class ="trash"><i class="fas fa-trash-alt"></i></span>` }
+  //tried returning '' but it kept showing up as undefined
+  return `<i></i>`
+}
+
+async function deleteMyStory(e) {
+  e.preventDefault()
+  const $target = $(e.target)
+  const $closestLi = $target.closest('li')
+  const $storyId = $closestLi.attr('id')
+
+  const story = currentUser.ownStories.find(s => s.storyId === $storyId)
+
+  await storyList.removeStory(currentUser, story)
+
+  $closestLi.remove()
+
+}
+
+$allStories.on('click', '.trash', deleteMyStory)
+
 
 function getStarHTML(story, user) {
   const isFavorite = user.isFavorite(story)
@@ -77,7 +105,7 @@ async function toggleStoryFavorites(evt) {
   }
 }
 
-$allStoriesList.on('click', '.heart-button', toggleStoryFavorites)
+$allStories.on('click', '.heart-button', toggleStoryFavorites)
 
 function putFavoritesOnPage() {
   //get list of favs and put it on page
@@ -117,24 +145,29 @@ async function submitNewStory(evt) {
   const title = $('#story-input-title').val()
   const author = $('#story-input-author').val()
   const url = $('#story-input-url').val()
+  const username = currentUser.username
 
-  const story = await storyList.addStory(currentUser, { title, author, url })
+  const story = await storyList.addStory(currentUser, { title, author, url, username })
 
-  $('#story-input-title').val('')
-  $('#story-input-author').val('')
-  $('#story-input-url').val('')
+  // $('#story-input-title').val('')
+  // $('#story-input-author').val('')
+  // $('#story-input-url').val('')
+  // { storyId, title, author, url, username, createdAt }
+  // const storyData = response.data.story
+  // const story = { storyId: storyData.storyId, title: storyData.title, author: storyData.author, url: storyData.url, username: storyData.username, createdAt: storyData.createdAt }
 
   const $story = generateStoryMarkup(story)
   $allStoriesList.prepend($story)
+  $submitStoryForm.trigger('reset')
 }
 
 $submitStoryForm.on('submit', submitNewStory)
 
 
-function putMyStoriesOnPage(){
+function putMyStoriesOnPage() {
   const myStories = currentUser.ownStories
 
-  for(let story of myStories){
+  for (let story of myStories) {
     let $story = generateStoryMarkup(story)
     $myStoriesList.append($story)
   }
