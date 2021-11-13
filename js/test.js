@@ -33,16 +33,29 @@ async function signUpTest(name, username, password) {
 //password: 12345
 
 //will create a new story with the parameters
-async function createNewStoryTest2(token, author, title, url) {
-    //the format the API wants the story in
-    const input = {
-        token,
-        story: {
-            author,
-            title,
-            url,
-        }
-    }
-    const res = await axios.post('https://hack-or-snooze-v3.herokuapp.com/stories', input)
-    console.log(res)
-}
+// async function createNewStoryTest2(token, author, title, url) {
+//     //the format the API wants the story in
+//     const input = {
+//         token,
+//         story: {
+//             author,
+//             title,
+//             url,
+//         }
+//     }
+//     const res = await axios.post('https://hack-or-snooze-v3.herokuapp.com/stories', input)
+//     console.log(res)
+// }
+
+
+
+
+
+response.data.stories[x] from BASE_URL/stories : 
+{author: "this is an author"
+createdAt: "2021-11-13T01:47:11.217Z"
+storyId: "a6a1084a-e1fc-4031-8c96-c54112d00776"
+title: "this is a test"
+updatedAt: "2021-11-13T01:47:11.217Z"
+url: "https://google.com"
+username: "usernamekop21"}
